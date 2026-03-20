@@ -18,6 +18,7 @@ import { RefreshCw, Crosshair, Plus, Fuel, UserCircle, Bookmark, Shield } from '
 import { useBookmarks } from '@/hooks/useBookmarks'
 import Link from 'next/link'
 import { InstallButton } from '@/components/ui/InstallButton'
+import { Onboarding } from '@/components/ui/Onboarding'
 
 const RadarMap = dynamic(
   () => import('@/components/map/RadarMap').then((m) => ({ default: m.RadarMap })),
@@ -225,6 +226,8 @@ export default function HomePage() {
         />
 
         {/* Report Modal */}
+        <Onboarding />
+
         {reportStation ? (
           <ReportModal
             stationId={reportStation.id}
