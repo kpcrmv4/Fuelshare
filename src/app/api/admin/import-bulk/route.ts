@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 const GOOGLE_API_KEY = process.env.GOOGLE_PLACES_API_KEY ?? ''
 
@@ -121,10 +121,8 @@ export async function POST(request: NextRequest) {
 
   const batchPoints = points.slice(batch_index * BATCH_SIZE, (batch_index + 1) * BATCH_SIZE)
 
-  const supabase = await createServerSupabase()
-
   // Get all existing place_ids
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseAdmin
     .from('stations')
     .select('place_id')
     .not('place_id', 'is', null)
@@ -150,7 +148,7 @@ export async function POST(request: NextRequest) {
       const addressParts = address.split(/[,\s]+/)
       const province = addressParts.length > 2 ? addressParts[addressParts.length - 2] : 'ไม่ระบุ'
 
-      const { error } = await supabase.from('stations').insert({
+      const { error } = await supabaseAdmin.from('stations').insert({
         place_id: place.id,
         name,
         brand,
