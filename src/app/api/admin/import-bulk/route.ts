@@ -81,8 +81,13 @@ async function searchNearby(lat: number, lng: number) {
     }),
   })
 
-  if (!res.ok) return []
+  if (!res.ok) {
+    const errText = await res.text()
+    console.error(`[import-bulk] Google API error at (${lat},${lng}): ${res.status} ${errText}`)
+    return []
+  }
   const data = await res.json()
+  console.log(`[import-bulk] Found ${(data.places ?? []).length} places at (${lat},${lng})`)
   return data.places ?? []
 }
 
@@ -131,6 +136,7 @@ export async function POST(request: NextRequest) {
   let imported = 0
   let skipped = 0
   let found = 0
+  const errors: string[] = []
 
   for (const point of batchPoints) {
     const places = await searchNearby(point.lat, point.lng)
@@ -163,6 +169,10 @@ export async function POST(request: NextRequest) {
       if (!error) {
         imported++
         existingIds.add(place.id)
+      } else {
+        const errMsg = `Insert "${name}": ${error.message}`
+        errors.push(errMsg)
+        console.error(`[import-bulk] ${errMsg}`, error.details)
       }
       skipped += error ? 1 : 0
     }
@@ -175,6 +185,7 @@ export async function POST(request: NextRequest) {
     found,
     imported,
     skipped,
+    errors: errors.slice(0, 10),
     progress_percent: Math.round(((batch_index + 1) / totalBatches) * 100),
     done: batch_index + 1 >= totalBatches,
   })

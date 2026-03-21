@@ -79,8 +79,11 @@ function AdminContent() {
         setBulkBatch(i + 1)
         setBulkImported((prev) => prev + data.imported)
         setBulkFound((prev) => prev + data.found)
-        if (data.imported > 0) {
-          setBulkLog((prev) => [...prev, `✅ Batch ${i + 1}/${info.total_batches}: +${data.imported} ปั๊ม (พบ ${data.found})`])
+        if (data.imported > 0 || data.found > 0) {
+          setBulkLog((prev) => [...prev, `✅ Batch ${i + 1}/${info.total_batches}: +${data.imported} ปั๊ม (พบ ${data.found}, ข้าม ${data.skipped})`])
+        }
+        if (data.errors?.length > 0) {
+          setBulkLog((prev) => [...prev, ...data.errors.map((e: string) => `⚠️ ${e}`)])
         }
       } catch {
         setBulkLog((prev) => [...prev, `❌ Batch ${i}: Network error`])
