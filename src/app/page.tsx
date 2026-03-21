@@ -29,6 +29,10 @@ const ReportModal = dynamic(
   () => import('@/components/report/ReportModal').then((m) => ({ default: m.ReportModal })),
 )
 
+const RequestStationWizard = dynamic(
+  () => import('@/components/station/RequestStationWizard').then((m) => ({ default: m.RequestStationWizard })),
+)
+
 export default function HomePage() {
   const { location, loading: geoLoading, requestLocation } = useGeolocation()
   const { radiusKm, radiusM, setRadius } = useRadar()
@@ -45,6 +49,7 @@ export default function HomePage() {
   const [majorOnly, setMajorOnly] = useState(false)
   const [selectedStation, setSelectedStation] = useState<number | null>(null)
   const [reportStation, setReportStation] = useState<{ id: number; name: string } | null>(null)
+  const [showRequestWizard, setShowRequestWizard] = useState(false)
 
   useEffect(() => {
     requestLocation()
@@ -209,6 +214,8 @@ export default function HomePage() {
           onClick={() => {
             if (filteredStations.length > 0) {
               setReportStation({ id: filteredStations[0].id, name: filteredStations[0].name })
+            } else {
+              setShowRequestWizard(true)
             }
           }}
           className="fixed bottom-6 right-6 w-14 h-14 bg-accent text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-10"
@@ -227,6 +234,11 @@ export default function HomePage() {
 
         {/* Report Modal */}
         <Onboarding />
+
+        {/* Request Station Wizard */}
+        {showRequestWizard && (
+          <RequestStationWizard onClose={() => setShowRequestWizard(false)} />
+        )}
 
         {reportStation ? (
           <ReportModal
