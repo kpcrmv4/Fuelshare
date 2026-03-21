@@ -1,15 +1,22 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const [authed, setAuthed] = useState(false)
+  const [checked, setChecked] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
+  useEffect(() => {
+    if (sessionStorage.getItem('admin_authed') === '1') {
+      setAuthed(true)
+    }
+    setChecked(true)
+  }, [])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Check admin password via env (simple approach)
     const res = await fetch('/api/admin/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -24,9 +31,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     }
   }
 
-  // Check session
-  if (!authed && typeof window !== 'undefined' && sessionStorage.getItem('admin_authed') === '1') {
-    setAuthed(true)
+  if (!checked) {
+    return <div className="min-h-dvh bg-bg" />
   }
 
   if (!authed) {
